@@ -212,7 +212,7 @@ if [ -n "${TXZ_EXPORT}" -o -n "${TGZ_EXPORT}" ] && [ -n "${SAFE_EXPORT}" ]; then
     error_exit "Error: Simple archive modes with safe ZFS export can't be used together."
 fi
 
-if checkyesno bastille_zfs_enable; then
+if ! checkyesno bastille_zfs_enable; then
     if [ -n "${GZIP_EXPORT}" -o -n "${RAW_EXPORT}" -o -n "${SAFE_EXPORT}" -o "${OPT_ZSEND}" = "-Rv" ]; then
         error_exit "Options --gz, --raw, --safe, --verbose are valid for ZFS configured systems only."
     fi
@@ -311,7 +311,7 @@ jail_export() {
                 export_check
 
                 # Export the raw container recursively and cleanup temporary snapshots
-                zfs send ${OPT_ZSEND} "${bastille_zfs_zpool}/${bastille_zfs_prefix}/jails/${TARGET}@bastille_${TARGET}_${DATE}" \
+                zfs send -w ${OPT_ZSEND} "${bastille_zfs_zpool}/${bastille_zfs_prefix}/jails/${TARGET}@bastille_${TARGET}_${DATE}" \
                 > "${bastille_backupsdir}/${TARGET}_${DATE}"
                 clean_zfs_snap
             elif [ -n "${GZIP_EXPORT}" ]; then

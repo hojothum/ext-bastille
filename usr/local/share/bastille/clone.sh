@@ -159,7 +159,13 @@ clone_jail() {
                 # Replicate the existing container
                 DATE=$(date +%F-%H%M%S)
                 zfs snapshot -r "${bastille_zfs_zpool}/${bastille_zfs_prefix}/jails/${TARGET}@bastille_clone_${DATE}"
-                zfs send -R "${bastille_zfs_zpool}/${bastille_zfs_prefix}/jails/${TARGET}@bastille_clone_${DATE}" | zfs recv "${bastille_zfs_zpool}/${bastille_zfs_prefix}/jails/${NEWNAME}"
+                zfs send -w -R "${bastille_zfs_zpool}/${bastille_zfs_prefix}/jails/${TARGET}@bastille_clone_${DATE}" | zfs recv "${bastille_zfs_zpool}/${bastille_zfs_prefix}/jails/${NEWNAME}"
+
+                # TODO: must update mountpoints for additional datasets (like log:/root/var/log)
+                # - zfs set mountpoint=/usr/local/bastille/jails/CLONED_JAIL/root/var/log bpool/enc/bastille/jails/CLONED_JAIL/log
+                # TODO: encryption keyfile option was not preserved, became "prompt"
+                # TODO: must mount the filesystems for the update_jailconf and update_fstab functions to work
+                # - zfs mount -a
 
                 # Cleanup source temporary snapshots
                 zfs destroy "${bastille_zfs_zpool}/${bastille_zfs_prefix}/jails/${TARGET}/root@bastille_clone_${DATE}"
