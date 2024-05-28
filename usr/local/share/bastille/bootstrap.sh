@@ -381,7 +381,7 @@ debootstrap_release() {
 
     # Fetch the Linux flavor
     info "Bootstrapping ${PLATFORM_OS} distfiles..."
-    if ! debootstrap --foreign --arch=${ARCH_BOOTSTRAP} --no-check-gpg ${LINUX_FLAVOR} "${bastille_releasesdir}"/${DIR_BOOTSTRAP}; then
+    if ! debootstrap --foreign --arch=${ARCH_BOOTSTRAP} --no-check-gpg ${LINUX_FLAVOR} "${bastille_releasesdir}"/${DIR_BOOTSTRAP} ${LINUX_MIRROR}; then
         ## perform cleanup only for stale/empty directories on failure
         if checkyesno bastille_zfs_enable; then
             if [ -n "${bastille_zfs_zpool}" ]; then
@@ -399,7 +399,7 @@ debootstrap_release() {
     fi
 
     case "${LINUX_FLAVOR}" in
-        bionic|focal|jammy|buster|bullseye|bookworm)
+        bionic|focal|jammy|buster|bullseye|bookworm|daedalus)
         info "Increasing APT::Cache-Start"
         echo "APT::Cache-Start 251658240;" > "${bastille_releasesdir}"/${DIR_BOOTSTRAP}/etc/apt/apt.conf.d/00aptitude
         ;;
@@ -598,6 +598,14 @@ debian_bookworm|bookworm|debian-bookworm)
     LINUX_FLAVOR="bookworm"
     DIR_BOOTSTRAP="Debian12"
     ARCH_BOOTSTRAP=${HW_MACHINE_ARCH_LINUX}
+    debootstrap_release
+    ;;
+devuan_daedalus|daedalus|devuan-daedalus)
+    PLATFORM_OS="Devuan/Linux"
+    LINUX_FLAVOR="daedalus"
+    DIR_BOOTSTRAP="Devuan5"
+    ARCH_BOOTSTRAP=${HW_MACHINE_ARCH_LINUX}
+    LINUX_MIRROR="http://deb.devuan.org/merged/"
     debootstrap_release
     ;;
 *)
